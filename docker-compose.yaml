@@ -1,0 +1,61 @@
+networks:
+  proxy-net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.29.92.0/16"
+
+services:
+  nginx-1:
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    container_name: nginx-1
+    hostname: nginx-1
+    image: nginx:1.26.2-alpine
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "80:80"
+      - "443:443"
+    command: [nginx-debug, '-g', 'daemon off;']
+    networks:
+      proxy-net:
+        ipv4_address: 172.29.92.2
+    depends_on:
+      - app-a1
+      - app-a2
+      - app-b1
+      - app-b2
+  
+  app-a1:
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    container_name: app-a1
+    hostname: app-a1
+    image: app-a
+    networks:
+      proxy-net:
+        ipv4_address: 172.29.92.3
+  app-a2:
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    container_name: app-a2
+    hostname: app-a2
+    image: app-a
+    networks:
+      proxy-net:
+        ipv4_address: 172.29.92.4
+  app-3:
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    container_name: app-3
+    hostname: app-3
+    image: app-3
+    networks:
+      proxy-net:
+        ipv4_address: 172.29.92.5
